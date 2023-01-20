@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+<body>
+  <div>
+    <label>Sample rate: 100 Hz</label>
+  </div>
+  <div>
+    <label>Frequency:</label>
+    <input type="range" id="frequency" min="0" max="100" step="0.1" value="1">
+    <span id="frequency-value"></span>
+  </div>
+  <div>
+    <label>Phase:</label>
+    <input type="range" id="phase" min="0" max="6.2" step="0.1" value="0">
+    <span id="phase-value"></span>
+  </div>
+  <svg id="sine-wave"></svg>
+  <script>
+    var frequency = 1;
+    var phase = 0; 
+    var sampleRate = 100;
+    var width = 600;
+    var height = 300;
+    var xScale = d3.scaleLinear()
+                  .domain([0, 1])
+                  .range([0, width]);
+    var yScale = d3.scaleLinear()
+                  .domain([-1, 1])
+                  .range([height, 0]);
+    var svg = d3.select("#sine-wave")
+                .attr("width", width)
+                .attr("height", height);
+    var line = d3.line()
+                 .x(function(d) { return xScale(d[0]); })
+                 .y(function(d) { return yScale(d[1]); });
+
+    var data = d3.range(0, 1, 1/sampleRate)
+                .map(function(d) { return [d, Math.sin(2*Math.PI*frequency*d)]; });
+    var path = svg.append("path")
+                  .datum(data)
+                  .attr("d", line)
+                  .attr("fill", "none")
+                  .attr("stroke", "blue");
+    var frequencyInput = d3.select("#frequency");
+    var frequencyValue = d3.select("#frequency-value");
+
+    var phaseInput = d3.select("#phase");
+    var phaseValue = d3.select("#phase-value");
+
+    frequencyInput.on("input", function() {
+      frequency = +this.value;
+      data = d3.range(0, 1, 1/sampleRate)
+               .map(function(d) { return [d, Math.sin(2*Math.PI*frequency*d + phase)]; });
+      path.datum(data)
+          .attr("d", line);
+      frequencyValue.text(frequency);
+    });
+    frequencyValue.text(frequency);
+
+    phaseInput.on("input", function() {
+      phase = +this.value;
+      data = d3.range(0, 1, 1/sampleRate)
+               .map(function(d) { return [d, Math.sin(2*Math.PI*frequency*d + phase)]; });
+      path.datum(data)
+          .attr("d", line);
+      phaseValue.text(phase);
+    });
+    phaseValue.text(phase);
+  </script>
+</body>
+</html>
